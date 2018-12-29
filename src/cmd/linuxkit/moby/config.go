@@ -110,12 +110,13 @@ type ImageConfig struct {
 
 // Runtime is the type of config processed at runtime, not used to build the OCI spec
 type Runtime struct {
-	Cgroups    *[]string      `yaml:"cgroups,omitempty" json:"cgroups,omitempty"`
-	Mounts     *[]specs.Mount `yaml:"mounts,omitempty" json:"mounts,omitempty"`
-	Mkdir      *[]string      `yaml:"mkdir,omitempty" json:"mkdir,omitempty"`
-	Interfaces *[]Interface   `yaml:"interfaces,omitempty,omitempty" json:"interfaces,omitempty"`
-	BindNS     Namespaces     `yaml:"bindNS,omitempty" json:"bindNS,omitempty"`
-	Namespace  *string        `yaml:"namespace,omitempty" json:"namespace,omitempty"`
+	Cgroups     *[]string          `yaml:"cgroups,omitempty" json:"cgroups,omitempty"`
+	Mounts      *[]specs.Mount     `yaml:"mounts,omitempty" json:"mounts,omitempty"`
+	Mkdir       *[]string          `yaml:"mkdir,omitempty" json:"mkdir,omitempty"`
+	Interfaces  *[]Interface       `yaml:"interfaces,omitempty,omitempty" json:"interfaces,omitempty"`
+	BindNS      Namespaces         `yaml:"bindNS,omitempty" json:"bindNS,omitempty"`
+	Namespace   *string            `yaml:"namespace,omitempty" json:"namespace,omitempty"`
+	EnvFromFile *map[string]string `yaml:"envFromFile,omitempty" json:"envFromFile,omitempty"`
 }
 
 // Namespaces is the type for configuring paths to bind namespaces
@@ -590,6 +591,7 @@ func assignRuntime(v1, v2 *Runtime) Runtime {
 	runtimeMkdir := assignStrings(v1.Mkdir, v2.Mkdir)
 	runtimeInterfaces := assignRuntimeInterfaceArray(v1.Interfaces, v2.Interfaces)
 	runtimeNamespace := assignString(v1.Namespace, v2.Namespace)
+	runtimeEnvFromFile := assignMaps(v1.EnvFromFile, v2.EnvFromFile)
 	runtime := Runtime{
 		Cgroups:    &runtimeCgroups,
 		Mounts:     &runtimeMounts,
@@ -604,7 +606,8 @@ func assignRuntime(v1, v2 *Runtime) Runtime {
 			User:   assignStringPtr(v1.BindNS.User, v2.BindNS.User),
 			Uts:    assignStringPtr(v1.BindNS.Uts, v2.BindNS.Uts),
 		},
-		Namespace: &runtimeNamespace,
+		Namespace:   &runtimeNamespace,
+		EnvFromFile: &runtimeEnvFromFile,
 	}
 	return runtime
 }
