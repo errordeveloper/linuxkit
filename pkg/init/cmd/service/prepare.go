@@ -149,7 +149,7 @@ func makeAbsolute(rootfs, dir string) string {
 }
 
 // prepareFilesystem sets up the mounts and cgroups, before the container is created
-func prepareFilesystem(rootfs string, runtime Runtime) error {
+func prepareFilesystem(rootfs string, runtime Runtime, spec *specs.Spec) error {
 	// execute the runtime config that should be done up front
 	// we execute Mounts before Mkdir so you can make a directory under a mount
 	// but we do mkdir of the destination path in case missing
@@ -183,6 +183,14 @@ func prepareFilesystem(rootfs string, runtime Runtime) error {
 		err := os.MkdirAll(dir, mode)
 		if err != nil {
 			return fmt.Errorf("Cannot create directory %s: %v", dir, err)
+		}
+		if spec != nil {
+			// checking spec.Process and spec.Process.User for nil fails to compile: ./prepare.go:189:26: cannot convert nil to type specs.User
+			uid := int(spec.Process.User.UID)
+			gid := int(spec.Process.User.GID)
+			if err := os.Chown(dir, uid, gid); err != nil {
+				return fmt.Errorf("Cannot chown directory %s: %v", dir, err)
+			}
 		}
 	}
 

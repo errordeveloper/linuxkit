@@ -70,7 +70,7 @@ func runcInit(rootPath, serviceType string) int {
 
 		runtimeConfig := getRuntimeConfig(path)
 
-		if err := prepareFilesystem(path, runtimeConfig); err != nil {
+		if err := prepareFilesystem(path, runtimeConfig, nil); err != nil {
 			log.Printf("Error preparing %s: %v", name, err)
 			status = 1
 			continue

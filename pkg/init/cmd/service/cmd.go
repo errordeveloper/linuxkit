@@ -156,10 +156,6 @@ func start(ctx context.Context, service, sock, basePath, dumpSpec string) (strin
 
 	rootfs := filepath.Join(path, "rootfs")
 
-	if err := prepareFilesystem(rootfs, runtimeConfig); err != nil {
-		return "", 0, "preparing filesystem", err
-	}
-
 	client, err := containerd.New(sock)
 	if err != nil {
 		return "", 0, "creating containerd client", err
@@ -176,6 +172,10 @@ func start(ctx context.Context, service, sock, basePath, dumpSpec string) (strin
 
 	if err := prepareSpec(rootfs, runtimeConfig, spec); err != nil {
 		return "", 0, "preparing environment variables", err
+	}
+
+	if err := prepareFilesystem(rootfs, runtimeConfig, spec); err != nil {
+		return "", 0, "preparing filesystem", err
 	}
 
 	if dumpSpec != "" {
